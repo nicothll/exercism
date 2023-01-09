@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Exercism cache
+.exercism/
+HELP.md
+HINTS.md
+.articles/
