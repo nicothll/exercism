@@ -31,9 +31,10 @@ def score(dice: list[int], category: int) -> int:
     # Evaluate dice with Counter class from collections package
     counter = Counter(dice)
     counter_values = set(counter.values())
+    value, count = counter.most_common(1)[0]
 
     # ONES to SIXES categories
-    if category in [ONES, TWOS, THREES, FOURS, FIVES, SIXES]:
+    if ONES <= category <= SIXES:
         return category * dice.count(category)
 
     # YACHT category
@@ -45,8 +46,8 @@ def score(dice: list[int], category: int) -> int:
         return sum(dice)
 
     # FOUR_OF_A_KIND category (e.g. dice=[5, 2, 2, 2, 2] or dice=[5, 5, 5, 5, 5])
-    if category == FOUR_OF_A_KIND and counter_values in [{1, 4}, {5}]:
-        return 4 * counter.most_common(1)[0][0]
+    if category == FOUR_OF_A_KIND and count >= 4:
+        return 4 * value
 
     # CHOICE category
     if category == CHOICE:
