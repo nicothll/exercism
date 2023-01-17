@@ -133,3 +133,6 @@ dmypy.json
 HELP.md
 HINTS.md
 .articles/
+
+# Others
+*.ipynb
