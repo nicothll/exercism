@@ -1,54 +1,58 @@
 import collections
+from typing import Callable
+
+# Init counter object
+counter = collections.Counter
 
 # Score categories.
-YACHT = 0
-ONES = 1
-TWOS = 2
-THREES = 3
-FOURS = 4
-FIVES = 5
-SIXES = 6
-FULL_HOUSE = 7
-FOUR_OF_A_KIND = 10
-LITTLE_STRAIGHT = 11
-BIG_STRAIGHT = 12
-CHOICE = 13
+YACHT = lambda dice: 50 if len(set(dice)) == 1 else 0
+ONES = lambda dice: ones_to_sixes(dice, 1)
+TWOS = lambda dice: ones_to_sixes(dice, 2)
+THREES = lambda dice: ones_to_sixes(dice, 3)
+FOURS = lambda dice: ones_to_sixes(dice, 4)
+FIVES = lambda dice: ones_to_sixes(dice, 5)
+SIXES = lambda dice: ones_to_sixes(dice, 6)
+FULL_HOUSE = lambda dice: sum(dice) if set(counter(dice).values()) == {2, 3} else 0
+FOUR_OF_A_KIND = lambda dice: four_of_a_kind(dice)
+LITTLE_STRAIGHT = lambda dice: 30 if set(dice) == {1, 2, 3, 4, 5} else 0
+BIG_STRAIGHT = lambda dice: 30 if set(dice) == {2, 3, 4, 5, 6} else 0
+CHOICE = lambda dice: sum(dice)
 
 
-def score(dice: list[int], category: int) -> int:
-    """Function that return the score of a given a list of values for 5 dice.
-
-    :param dice: list[int] - given values of 5 dices (1 to 6).
-    :param category: int - given category code. See Score categories section,
-    :return: int - score
+def ones_to_sixes(dice: list[int], digit: int) -> int:
     """
+    Calculate the score for ONES to SIXES category of the game.
 
-    counter = collections.Counter(dice)
+    :param dice: List[int] - A list of integers representing the roll of 5 dice.
+    :return: int - The score according to the digit category.
+    """
+    return digit * dice.count(digit)
 
-    # FULL_HOUSE category (e.g. dice=[1, 1, 3, 3, 3])
-    if category == FULL_HOUSE and set(counter.values()) == {2, 3}:
-        return sum(dice)
 
-    # FOUR_OF_A_KIND category (e.g. dice=[5, 2, 2, 2, 2] or dice=[5, 5, 5, 5, 5])
-    most_common_nb, most_common_count = counter.most_common(1)[0]
-    if category == FOUR_OF_A_KIND and most_common_count >= 4:
+def four_of_a_kind(dice: list[int]) -> int:
+    """
+    Calculate the score for the four of a kind category of the game.
+
+    :param dice: list[int] - A list of integers representing the roll of 5 dice.
+    :return: int - The score for the four of a kind category.
+                    Returns 0 if the roll does not contain 4 of the same number.
+    """
+    most_common_nb, count = counter(dice).most_common(1)[0]
+    if count >= 4:
         return 4 * most_common_nb
+    else:
+        return 0
 
-    # LITTLE STRAIGHT category  (e.g. dice=[1, 2, 3, 4, 5])
-    if category == LITTLE_STRAIGHT and set(dice) == {1, 2, 3, 4, 5}:
-        return 30
 
-    # BIG STRAIGHT category (e.g. dice=[2, 3, 4, 5, 6])
-    if category == BIG_STRAIGHT and set(dice) == {2, 3, 4, 5, 6}:
-        return 30
+def score(dice: list[int], category: Callable) -> int:
+    """
+    Calculate the score of a given set of dice rolls based on the selected category.
 
-    if ONES <= category <= SIXES:
-        return category * dice.count(category)
-
-    if category == YACHT and len(set(dice)) == 1:
-        return 50
-
-    if category == CHOICE:
-        return sum(dice)
-
-    return 0
+    :param dice: List[int] - A list of integers representing the roll of 5 dice.
+    :param category: Callable - A function that determines the scoring category to use.
+                       Available categories are YACHT, ONES, TWOS, THREES, FOURS,
+                       FIVES, SIXES, FULL_HOUSE, FOUR_OF_A_KIND, LITTLE_STRAIGHT,
+                       BIG_STRAIGHT, CHOICE.
+    :return: int - The score for the given set of dice rolls and category.
+    """
+    return category(dice)
