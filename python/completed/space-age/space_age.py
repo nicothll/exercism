@@ -1,33 +1,10 @@
-import functools
-
-
-def rounding(digits: int):
-    """Decorator function to round the return value of a function.
-
-    Args:
-        digits (int): The number of decimal places to round the return value to.
-
-    Returns:
-        A decorator function that can be applied to other functions to round their return values.
-    """
-
-    def _rounding(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            return round(result, digits)
-
-        return wrapper
-
-    return _rounding
-
-
 class SpaceAge:
     """Create an SpaceAge object with seconds.
 
     Attributes:
+    - (class) ONE_YEAR_IN_SECONDS (int): one year in seconds on Earth.
     - seconds (int): The given age in seconds.
-    - age_earth (float): age on Earth according to seconds parameter.
+    - age_on_earth (float): age on Earth according to seconds parameter without rounding.
 
     Methods:
     - on_mercury(): Return the age in seconds on Mercury.
@@ -41,70 +18,64 @@ class SpaceAge:
 
     """
 
+    ONE_YEAR_IN_SECONDS = 31557600
+
     def __init__(self, seconds: int) -> None:
         self.seconds = seconds
-        self.age_earth = self.seconds / 31557600
+        self.age_on_earth = self.seconds / self.ONE_YEAR_IN_SECONDS
 
-    @rounding(2)
     def on_mercury(self) -> float:
         """
         Return the age in seconds on Mercury
         :return: float
         """
-        return self.age_earth / 0.2408467
+        return round(self.age_on_earth / 0.2408467, 2)
 
-    @rounding(2)
     def on_venus(self) -> float:
         """
         Return the age in seconds on Venus
         :return: float
         """
-        return self.age_earth / 0.61519726
+        return round(self.age_on_earth / 0.61519726, 2)
 
-    @rounding(2)
     def on_earth(self) -> float:
         """
         Return the age in seconds on Earth
         :return: float
         """
-        return self.age_earth
+        return round(self.age_on_earth, 2)
 
-    @rounding(2)
     def on_mars(self) -> float:
         """
         Return the age in seconds on Mars
         :return: float
         """
-        return self.age_earth / 1.8808158
+        return round(self.age_on_earth / 1.8808158, 2)
 
-    @rounding(2)
     def on_jupiter(self) -> float:
         """
         Return the age in seconds on Jupiter
         :return: float
         """
-        return self.age_earth / 11.862615
+        return round(self.age_on_earth / 11.862615, 2)
 
-    @rounding(2)
     def on_saturn(self) -> float:
         """
         Return the age in seconds on Saturn
         :return: float
         """
-        return self.age_earth / 29.447498
+        return round(self.age_on_earth / 29.447498, 2)
 
-    @rounding(2)
     def on_uranus(self) -> float:
         """
         Return the age in seconds on Uranus
         :return: float
         """
-        return self.age_earth / 84.016846
+        return round(self.age_on_earth / 84.016846, 2)
 
-    @rounding(2)
     def on_neptune(self) -> float:
         """
         Return the age in seconds on Neptune
         :return: float
         """
-        return self.age_earth / 164.79132
+        return round(self.age_on_earth / 164.79132, 2)
