@@ -1,4 +1,4 @@
-COLORS = [
+COLORS = (
     "black",
     "brown",
     "red",
@@ -9,7 +9,7 @@ COLORS = [
     "violet",
     "grey",
     "white",
-]
+)
 
 
 def value(colors: list[str]) -> int:
