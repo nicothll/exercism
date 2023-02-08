@@ -20,7 +20,7 @@ def label(colors: list[str]) -> str:
     """
 
     value = int(
-        "".join(str(COLORS.index(colors[0])) for color in colors[:2])
+        "".join(str(COLORS.index(color)) for color in colors[:2])
     ) * 10 ** COLORS.index(colors[2])
 
     if value == 0:
