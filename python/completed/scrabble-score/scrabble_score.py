@@ -1,14 +1,15 @@
+import enum
 import collections
 
-LETTERS_VALUES = (
-    ("AEIOULNRST", 1),
-    ("DG", 2),
-    ("BCMP", 3),
-    ("FHVWY", 4),
-    ("K", 5),
-    ("JX", 8),
-    ("QZ", 10),
-)
+
+class Scrabble(enum.IntEnum):
+    A = E = I = O = U = L = N = R = S = T = 1
+    D = G = 2
+    B = C = M = P = 3
+    F = H = V = W = Y = 4
+    K = 5
+    J = X = 8
+    Q = Z = 10
 
 
 def score(word: str) -> int:
@@ -19,11 +20,4 @@ def score(word: str) -> int:
     """
     word_counter = list(collections.Counter(word).items())
 
-    score = []
-    for letter, count in word_counter:
-        for letters, point in LETTERS_VALUES:
-            if letter.upper() in letters:
-                score.append(point * count)
-                continue
-
-    return sum(score)
+    return sum(Scrabble[letter.upper()] * count for letter, count in word_counter)
