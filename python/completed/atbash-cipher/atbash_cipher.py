@@ -1,7 +1,27 @@
 import string
 
 ALPHABET = string.ascii_lowercase
-CIPHER = ALPHABET[::-1]
+SECRET = str.maketrans(ALPHABET, ALPHABET[::-1])
+
+
+def _clean(text: str) -> str:
+    """Returns text with only alpha or digit character.
+
+    :param text: str - The text to clean.
+    :return: str - The text cleaned.
+    """
+    return "".join(ch.lower() for ch in text if ch.isalnum())
+
+
+def _split(text: str) -> str:
+    """Returns the text with whitespace every 5 character.
+
+    :param text: str - The text to split up.
+    :return: str - The text chunked.
+    """
+    if len(text) <= 5:
+        return text
+    return text[:5] + " " + _split(text[5:])
 
 
 def encode(plain_text: str) -> str:
@@ -10,32 +30,13 @@ def encode(plain_text: str) -> str:
     :param plain_text: str - Given text.
     :return: str - Encrypted text.
     """
-    result = []
-    count = 0
-    for letter in plain_text.lower():
-        if letter in ALPHABET:
-            result.append(CIPHER[ALPHABET.index(letter)])
-        elif letter.isdigit():
-            result.append(letter)
-        else:
-            continue
-        count += 1
-        if count == 5:
-            result.append(" ")
-            count = 0
-    return "".join(result).rstrip()
+    return _split(_clean(plain_text).translate(SECRET))
 
 
 def decode(ciphered_text: str) -> str:
-    """Dencode an atbash cipher text
+    """Dencode an atbash cipher text.
 
-    :param ciphered_text: str - Given encrypted text
-    :return: str - Decrypted text
+    :param ciphered_text: str - Given encrypted text.
+    :return: str - Decrypted text.
     """
-    result = []
-    for letter in ciphered_text:
-        if letter in CIPHER:
-            result.append(ALPHABET[CIPHER.index(letter)])
-        elif letter.isdigit():
-            result.append(letter)
-    return "".join(result)
+    return _clean(ciphered_text.translate(SECRET))
