@@ -1,8 +1,3 @@
-import string
-
-ALPHABET = string.ascii_uppercase
-
-
 def rows(letter: str) -> list[str]:
     """
     Create a diamond shape of uppercase letters around the given letter.
@@ -25,21 +20,13 @@ def rows(letter: str) -> list[str]:
         list[str]: A list of strings representing the diamond shape.
     """
 
-    if letter == "A":
-        return ["A"]
+    letters = [chr(k) for k in range(ord("A"), ord(letter) + 1)]
+
+    diamond_line = letters[::-1] + letters[1:]
 
     diamond = list()
-
-    idx_letter = ALPHABET.index(letter)
-    length = range(1, len(ALPHABET) * 2, 2)[idx_letter]
-
-    for step in range(idx_letter + 1):
+    for _letter in letters:
         diamond.append(
-            str().join(
-                ALPHABET[step]
-                if length // 2 + step == i or length // 2 - step == i
-                else " "
-                for i in range(length)
-            )
+            "".join(_letter if _letter == ch else " " for ch in diamond_line)
         )
     return diamond + diamond[-2::-1]
