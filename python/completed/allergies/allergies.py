@@ -29,13 +29,9 @@ class Allergies:
         Args:
             score (int): The allergy score.
         """
-
-        self.bin_score = bin(score)[2:]
-
+        self.score = score
         self.__allergens = [
-            self.ITEMS[idx][0]
-            for idx, bit in enumerate(self.bin_score[::-1][:8])
-            if bit == "1"
+            item for item, value in self.ITEMS if self.score & value == value
         ]
 
     def allergic_to(self, item: str) -> bool:
