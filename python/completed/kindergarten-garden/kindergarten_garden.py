@@ -7,15 +7,15 @@ class Garden:
 
     Args:
         diagram (str): A string representing the garden's layout.
-        students (list[str], optional): A list of the students' names. Defaults to STUDENTS.
+        students (list[str], optional): A list of the students' names. Defaults to DEFAULT_STUDENTS.
 
     Methods:
         plants(student: str) -> list[str]: Returns the list of plants in the garden that the given student is responsible for.
     """
 
-    PLANTS = {"G": "Grass", "C": "Clover", "R": "Radishes", "V": "Violets"}
+    PLANTS_NAMES = {"G": "Grass", "C": "Clover", "R": "Radishes", "V": "Violets"}
 
-    STUDENTS = [
+    DEFAULT_STUDENTS = [
         "Alice",
         "Bob",
         "Charlie",
@@ -30,22 +30,23 @@ class Garden:
         "Larry",
     ]
 
-    def __init__(self, diagram: str, students: list[str] = STUDENTS) -> None:
+    def __init__(self, diagram: str, students: list[str] = DEFAULT_STUDENTS) -> None:
         """Initializes the Garden class.
 
         Args:
             diagram (str): A string representation of the garden layout for the class.
-            students (list[str], optional): A list of student names. Defaults to STUDENTS.
+            students (list[str], optional): A list of student names. Defaults to DEFAULT_STUDENTS.
         """
-        self._diagram = diagram.split()
-        self._students = sorted(students)
+        self._diagram = diagram.splitlines()
+        self._students = sorted(self.DEFAULT_STUDENTS if students is None else students)
 
         self._garden = dict()
 
         for row in self._diagram:
-            for idx, student in zip(range(0, len(row), 2), self._students):
-                plants = list(map(lambda p: self.PLANTS[p], list(row[idx : idx + 2])))
-                self._garden[student] = self._garden.get(student, []) + plants
+            for s, p1, p2 in zip(self._students, row[::2], row[1::2]):
+                self._garden.setdefault(s, []).extend(
+                    list(map(lambda p: self.PLANTS_NAMES.get(p), [p1, p2]))
+                )
 
     def plants(self, student: str) -> list[str]:
         """Returns the list of plants a given student has in their row of the garden.
