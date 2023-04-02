@@ -40,14 +40,6 @@ class Garden:
         self._diagram = diagram.splitlines()
         self._students = sorted(self.DEFAULT_STUDENTS if students is None else students)
 
-        self._garden = dict()
-
-        for row in self._diagram:
-            for s, p1, p2 in zip(self._students, row[::2], row[1::2]):
-                self._garden.setdefault(s, []).extend(
-                    list(map(lambda p: self.PLANTS_NAMES.get(p), [p1, p2]))
-                )
-
     def plants(self, student: str) -> list[str]:
         """Returns the list of plants a given student has in their row of the garden.
 
@@ -57,4 +49,12 @@ class Garden:
         Returns:
             list[str]: A list of strings representing the plants in the student's row of the garden.
         """
-        return self._garden.get(student, [])
+        try:
+            std_index = self._students.index(student) * 2
+            return [
+                self.PLANTS_NAMES.get(plant[idx], "")
+                for plant in self._diagram
+                for idx in (std_index, std_index + 1)
+            ]
+        except (IndexError, ValueError):
+            return []
