@@ -49,12 +49,10 @@ class Garden:
         Returns:
             list[str]: A list of strings representing the plants in the student's row of the garden.
         """
-        try:
-            std_index = self._students.index(student) * 2
-            return [
-                self.PLANTS_NAMES.get(plant[idx], "")
-                for plant in self._diagram
-                for idx in (std_index, std_index + 1)
-            ]
-        except (IndexError, ValueError):
-            return []
+
+        std_index = self._students.index(student) * 2
+        return [
+            self.PLANTS_NAMES.get(plant[idx], "")
+            for plant in self._diagram
+            for idx in (std_index, std_index + 1)
+        ]
