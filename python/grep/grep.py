@@ -1,5 +1,7 @@
 from typing import Iterator
 
+FLAGS = ("-n", "-l", "-i", "-v", "-x")
+
 
 class Search:
     """Searches for a pattern in a given text, taking into account flags.
@@ -11,13 +13,8 @@ class Search:
         txt (str): The text that is searched, possibly in lowercase.
 
     Methods:
-        _checking(line: str) -> bool:
-            Returns whether the line matches the pattern.
-        _checking_lines() -> Iterator[bool]:
-            Yields a Boolean value for each line indicating whether it matches the pattern.
         lines() -> Iterator[str]:
             Yields each matching line in the original text.
-
     """
 
     def __init__(self, text: str, flags: str, pattern: str) -> None:
@@ -30,35 +27,12 @@ class Search:
 
         """
         self.original_txt = text
-        self.flags = flags
+        self.n, _, i, self.v, self.x = [flag in flags for flag in FLAGS]
 
-        if "-i" in flags:
+        if i:
             self.pattern, self.txt = pattern.lower(), text.lower()
         else:
             self.pattern, self.txt = pattern, text
-
-    def _checking(self, line: str) -> bool:
-        """Checks if the given line matches the pattern, taking into account the flags.
-
-        Args:
-            line (str): The line to be checked.
-
-        Returns:
-            bool: True if the line matches the pattern; otherwise, False.
-
-        """
-        return self.pattern == line if "-x" in self.flags else self.pattern in line
-
-    def _checking_lines(self) -> Iterator[bool]:
-        """Yields a Boolean value for each line indicating whether it matches the pattern.
-
-        Yields:
-            bool: True if the line matches the pattern; otherwise, False.
-
-        """
-        for line in self.txt.splitlines():
-            response = self._checking(line)
-            yield not response if "-v" in self.flags else response
 
     def lines(self) -> Iterator[str]:
         """Yields each matching line in the original text.
@@ -67,11 +41,13 @@ class Search:
             str: The matching line in the original text.
 
         """
-        for (i, line), in_line in zip(
-            enumerate(self.original_txt.splitlines()), self._checking_lines()
+        for (i, original), line in zip(
+            enumerate(self.original_txt.splitlines()), self.txt.splitlines()
         ):
-            if in_line:
-                yield f"{i+1}:{line}" if "-n" in self.flags else line
+            response = self.pattern == line if self.x else self.pattern in line
+
+            if not response if self.v else response:
+                yield f"{i+1}:{original}" if self.n else original
 
 
 def grep(pattern: str, flags: str, files: list[str]) -> str:
