@@ -1,53 +1,30 @@
-from typing import Iterator
-
-FLAGS = ("-n", "-l", "-i", "-v", "-x")
+from typing import Generator
 
 
-class Search:
-    """Searches for a pattern in a given text, taking into account flags.
-
-    Attributes:
-        original_txt (str): The original text that was searched.
+def search(text: str, flags: str, pattern: str) -> Generator:
+    """Yields each matching line in the text.
+    Args:
+        text (str): The text that is searched.
         flags (str): The flags that determine how the search is performed.
-        pattern (str): The pattern that is searched for.
-        txt (str): The text that is searched, possibly in lowercase.
+        pattern (str): The pattern to search for.
 
-    Methods:
-        lines() -> Iterator[str]:
-            Yields each matching line in the original text.
+    Yields:
+        str: The matching line in the text.
+
     """
+    for i, line in enumerate(text.splitlines(), start=1):
+        original = line
+        if "-i" in flags:
+            pattern, line = pattern.lower(), line.lower()
 
-    def __init__(self, text: str, flags: str, pattern: str) -> None:
-        """Initializes a new instance of the Search class.
-
-        Args:
-            text (str): The text to be searched.
-            flags (str): The flags that determine how the search is performed.
-            pattern (str): The pattern that is searched for.
-
-        """
-        self.original_txt = text
-        self.n, _, i, self.v, self.x = [flag in flags for flag in FLAGS]
-
-        if i:
-            self.pattern, self.txt = pattern.lower(), text.lower()
+        if "-x" in flags:
+            match = pattern == line
         else:
-            self.pattern, self.txt = pattern, text
-
-    def lines(self) -> Iterator[str]:
-        """Yields each matching line in the original text.
-
-        Yields:
-            str: The matching line in the original text.
-
-        """
-        for (i, original), line in zip(
-            enumerate(self.original_txt.splitlines()), self.txt.splitlines()
-        ):
-            response = self.pattern == line if self.x else self.pattern in line
-
-            if not response if self.v else response:
-                yield f"{i+1}:{original}" if self.n else original
+            match = pattern in line
+        if "-v" in flags:
+            match = not match
+        if match:
+            yield f"{i}:{original}" if "-n" in flags else original
 
 
 def grep(pattern: str, flags: str, files: list[str]) -> str:
@@ -65,13 +42,14 @@ def grep(pattern: str, flags: str, files: list[str]) -> str:
     results = ""
     for file in files:
         with open(file) as f:
-            search = Search(f.read(), flags, pattern)
-            lines = search.lines()
+            text = f.read()
 
-            lines_list = (
-                [f"{file}:{line}" for line in lines] if len(files) > 1 else list(lines)
-            )
+        lines = search(text, flags, pattern)
 
-            if lines_list:
-                results += (file if "-l" in flags else "\n".join(lines_list)) + "\n"
+        lines_list = (
+            [f"{file}:{line}" for line in lines] if len(files) > 1 else list(lines)
+        )
+
+        if lines_list:
+            results += (file if "-l" in flags else "\n".join(lines_list)) + "\n"
     return results
