@@ -1,7 +1,11 @@
 from typing import Generator
 
 
-def search(text: str, flags: str, pattern: str) -> Generator:
+def formatting(text: list[str], sep: str = "\n") -> str:
+    return f"{sep}".join(text)
+
+
+def search(text: str, flags: str, pattern: str) -> Generator[str, None, None]:
     """Yields each matching line in the text.
     Args:
         text (str): The text that is searched.
@@ -12,10 +16,13 @@ def search(text: str, flags: str, pattern: str) -> Generator:
         str: The matching line in the text.
 
     """
+    if "-i" in flags:
+        pattern = pattern.lower()
+
     for i, line in enumerate(text.splitlines(), start=1):
         original = line
         if "-i" in flags:
-            pattern, line = pattern.lower(), line.lower()
+            line = line.lower()
 
         if "-x" in flags:
             match = pattern == line
@@ -24,7 +31,7 @@ def search(text: str, flags: str, pattern: str) -> Generator:
         if "-v" in flags:
             match = not match
         if match:
-            yield f"{i}:{original}" if "-n" in flags else original
+            yield formatting([str(i), original], sep=":") if "-n" in flags else original
 
 
 def grep(pattern: str, flags: str, files: list[str]) -> str:
@@ -39,17 +46,17 @@ def grep(pattern: str, flags: str, files: list[str]) -> str:
         str: The results of the search as a string.
 
     """
-    results = ""
+    results = []
     for file in files:
         with open(file) as f:
             text = f.read()
 
         lines = search(text, flags, pattern)
 
-        lines_list = (
-            [f"{file}:{line}" for line in lines] if len(files) > 1 else list(lines)
-        )
+        if len(files) > 1:
+            lines = (formatting([file, line], sep=":") for line in lines)
 
-        if lines_list:
-            results += (file if "-l" in flags else "\n".join(lines_list)) + "\n"
-    return results
+        if lines := list(lines):
+            results.append(file if "-l" in flags else formatting(lines))
+
+    return formatting(results) + "\n" if results else ""
