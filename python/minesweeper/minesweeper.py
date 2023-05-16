@@ -1,27 +1,7 @@
-import itertools
 import re
 
 MINE = "*"
 NEIGHBORS = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
-
-
-def is_valid(board: list[str]) -> bool:
-    """Checks if the minefield board is valid.
-
-    Args:
-        board (list[str]): The minefield board represented as a list of strings.
-
-    Returns:
-        bool: True if the board is valid, False otherwise.
-
-    Raises:
-        ValueError: If the board is invalid with the current input.
-    """
-    length = len(board[0])
-    for row in board:
-        if length != len(row) or not re.match(r"[\s\*]*$", row):
-            return False
-    return True
 
 
 def annotate(minefield: list[str]) -> list[str]:
@@ -44,22 +24,32 @@ def annotate(minefield: list[str]) -> list[str]:
     """
     if not minefield:
         return minefield
-    if not is_valid(minefield):
-        raise ValueError("The board is invalid with current input.")
 
     nb_rows, nb_cols = len(minefield), len(minefield[0])
+
+    # Create matrix fill of zeros
     board = [[0] * nb_cols for _ in range(nb_rows)]
 
     for idx_row, row in enumerate(minefield):
-        for idx_col, item in enumerate(row):
-            if item == MINE:
+        if nb_cols != len(row) or not re.match(r"[\s\*]*$", row):
+            raise ValueError("The board is invalid with current input.")
+        for idx_col, cell in enumerate(row):
+            if cell == MINE:
                 board[idx_row][idx_col] = MINE
                 for n_row, n_col in NEIGHBORS:
                     r = idx_row + n_row
                     c = idx_col + n_col
-                    if r >= 0 and c >= 0:
-                        try:
-                            board[r][c] += 1
-                        except (TypeError, IndexError):
-                            continue
-    return ["".join(map(lambda x: str(x) if x != 0 else " ", r)) for r in board]
+                    if (
+                        r < 0
+                        or r > nb_rows - 1
+                        or c < 0
+                        or c > nb_cols - 1
+                        or board[r][c] == MINE
+                    ):
+                        continue
+                    board[r][c] += 1
+
+    annotated_field = []
+    for row in board:
+        annotated_field.append("".join(map(lambda x: str(x) if x != 0 else " ", row)))
+    return annotated_field
