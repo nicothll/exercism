@@ -1,8 +1,41 @@
 from typing import Generator
 
 
-def formatting(text: list[str], sep: str = "\n") -> str:
-    return f"{sep}".join(text)
+def formatting(
+    input: list[tuple[str]],
+    filename_only: bool,
+    show_numbers: bool,
+    add_filenames: bool,
+) -> str:
+    """Formats the input based on specified flags.
+
+    Args:
+        input (list[tuple[str]]): The input to be formatted, which is a list of tuples.
+        filename_only (bool): Indicates whether to display only the filenames.
+        show_numbers (bool): Indicates whether to display line numbers.
+        add_filenames (bool): Indicates whether to include filenames in the formatted output.
+
+    Returns:
+        str: The formatted output as a string.
+
+    """
+    formatted = []
+
+    for file, n_line, line in input:
+        if filename_only:
+            if file not in formatted:
+                formatted.append(file)
+            continue
+
+        output = []
+        if add_filenames:
+            output.append(file)
+        if show_numbers:
+            output.append(n_line)
+        output.append(line)
+        formatted.append(":".join(output))
+
+    return "\n".join(formatted) + "\n" if formatted else ""
 
 
 def search(text: str, flags: str, pattern: str) -> Generator[str, None, None]:
@@ -31,7 +64,7 @@ def search(text: str, flags: str, pattern: str) -> Generator[str, None, None]:
         if "-v" in flags:
             match = not match
         if match:
-            yield formatting([str(i), original], sep=":") if "-n" in flags else original
+            yield str(i), original
 
 
 def grep(pattern: str, flags: str, files: list[str]) -> str:
@@ -51,12 +84,13 @@ def grep(pattern: str, flags: str, files: list[str]) -> str:
         with open(file) as f:
             text = f.read()
 
-        lines = search(text, flags, pattern)
+        results += [
+            (file, n_line, line) for n_line, line in search(text, flags, pattern)
+        ]
 
-        if len(files) > 1:
-            lines = (formatting([file, line], sep=":") for line in lines)
-
-        if lines := list(lines):
-            results.append(file if "-l" in flags else formatting(lines))
-
-    return formatting(results) + "\n" if results else ""
+    return formatting(
+        results,
+        filename_only="-l" in flags,
+        show_numbers="-n" in flags,
+        add_filenames=len(files) > 1,
+    )
